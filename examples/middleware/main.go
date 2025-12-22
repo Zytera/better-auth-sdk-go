@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"time"
 
-	betterauth "github.com/medapsis/better-auth-sdk-go"
+	betterauth "github.com/Zytera/better-auth-sdk-go"
 )
 
 func main() {

@@ -250,7 +250,7 @@ A comprehensive example showcasing all SDK features in one application.
 
 ### Generating Docs
 ```bash
-go doc -all github.com/medapsis/better-auth-sdk-go
+go doc -all github.com/Zytera/better-auth-sdk-go
 ```
 
 ## CI/CD
@@ -302,8 +302,8 @@ MIT License - See [LICENSE](LICENSE) file for details.
 
 ## Support
 
-- GitHub Issues: https://github.com/medapsis/better-auth-sdk-go/issues
-- Documentation: https://github.com/medapsis/better-auth-sdk-go
+- GitHub Issues: https://github.com/Zytera/better-auth-sdk-go/issues
+- Documentation: https://github.com/Zytera/better-auth-sdk-go
 - Better Auth Docs: https://www.better-auth.com/docs
 
 ## Contributing

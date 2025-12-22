@@ -5,7 +5,7 @@ Get started with Better Auth SDK in minutes!
 ## Installation
 
 ```bash
-go get github.com/medapsis/better-auth-sdk-go
+go get github.com/Zytera/better-auth-sdk-go
 ```
 
 ## Initialize the Client
@@ -17,7 +17,7 @@ import (
     "context"
     "log"
     
-    betterauth "github.com/medapsis/better-auth-sdk-go"
+    betterauth "github.com/Zytera/better-auth-sdk-go"
 )
 
 func main() {
@@ -118,7 +118,7 @@ package main
 import (
     "net/http"
     
-    betterauth "github.com/medapsis/better-auth-sdk-go"
+    betterauth "github.com/Zytera/better-auth-sdk-go"
 )
 
 func main() {
@@ -343,13 +343,13 @@ Available providers:
 
 - **Examples**: Check out the [examples](./examples) directory
 - **Full Documentation**: See [README.md](./README.md)
-- **API Reference**: Run `go doc -all github.com/medapsis/better-auth-sdk-go`
+- **API Reference**: Run `go doc -all github.com/Zytera/better-auth-sdk-go`
 - **Contributing**: Read [CONTRIBUTING.md](./CONTRIBUTING.md)
 
 ## Need Help?
 
 - 📖 [Documentation](./README.md)
-- 🐛 [Report Issues](https://github.com/medapsis/better-auth-sdk-go/issues)
+- 🐛 [Report Issues](https://github.com/Zytera/better-auth-sdk-go/issues)
 - 💬 [Better Auth Docs](https://www.better-auth.com/docs)
 
 ## License

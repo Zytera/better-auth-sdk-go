@@ -8,27 +8,27 @@ run:
 
 linters:
   enable:
-    - errcheck      # Check for unchecked errors
-    - gosimple      # Simplify code
-    - govet         # Vet examines Go source code
-    - ineffassign   # Detect ineffectual assignments
-    - staticcheck   # Static analysis
-    - typecheck     # Type checking
-    - unused        # Check for unused code
-    - gofmt         # Check if code is gofmt-ed
-    - goimports     # Check import statements
-    - misspell      # Check for commonly misspelled words
-    - goconst       # Find repeated strings that could be constants
-    - gocyclo       # Check cyclomatic complexity
-    - dupl          # Check for code duplication
-    - gosec         # Security issues
-    - unconvert     # Remove unnecessary type conversions
-    - prealloc      # Find slice declarations that could be preallocated
+    - errcheck # Check for unchecked errors
+    - gosimple # Simplify code
+    - govet # Vet examines Go source code
+    - ineffassign # Detect ineffectual assignments
+    - staticcheck # Static analysis
+    - typecheck # Type checking
+    - unused # Check for unused code
+    - gofmt # Check if code is gofmt-ed
+    - goimports # Check import statements
+    - misspell # Check for commonly misspelled words
+    - goconst # Find repeated strings that could be constants
+    - gocyclo # Check cyclomatic complexity
+    - dupl # Check for code duplication
+    - gosec # Security issues
+    - unconvert # Remove unnecessary type conversions
+    - prealloc # Find slice declarations that could be preallocated
     - exportloopref # Check for loop variable capture
-    - nolintlint    # Reports ill-formed or insufficient nolint directives
-    - revive        # Fast, configurable, extensible linter
-    - errname       # Check error names
-    - errorlint     # Find code that will cause problems with Go 1.13+ error wrapping
+    - nolintlint # Reports ill-formed or insufficient nolint directives
+    - revive # Fast, configurable, extensible linter
+    - errname # Check error names
+    - errorlint # Find code that will cause problems with Go 1.13+ error wrapping
 
 linters-settings:
   errcheck:
@@ -53,7 +53,7 @@ linters-settings:
     locale: US
 
   goimports:
-    local-prefixes: github.com/medapsis/better-auth-sdk-go
+    local-prefixes: github.com/Zytera/better-auth-sdk-go
 
   revive:
     rules:

@@ -28,7 +28,7 @@ This project adheres to a code of conduct that all contributors are expected to 
    ```
 3. Add the upstream repository:
    ```bash
-   git remote add upstream https://github.com/medapsis/better-auth-sdk-go.git
+   git remote add upstream https://github.com/Zytera/better-auth-sdk-go.git
    ```
 
 ## Development Setup

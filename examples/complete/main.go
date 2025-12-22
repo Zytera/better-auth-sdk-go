@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	betterauth "github.com/medapsis/better-auth-sdk-go"
+	betterauth "github.com/Zytera/better-auth-sdk-go"
 )
 
 func main() {
@@ -335,6 +335,6 @@ func main() {
 	fmt.Println()
 	fmt.Println("Next steps:")
 	fmt.Println("  • Check the middleware example for HTTP integration")
-	fmt.Println("  • Read the documentation at github.com/medapsis/better-auth-sdk-go")
+	fmt.Println("  • Read the documentation at github.com/Zytera/better-auth-sdk-go")
 	fmt.Println("  • Join our community for support")
 }

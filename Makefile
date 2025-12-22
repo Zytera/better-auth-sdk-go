@@ -121,7 +121,7 @@ bench:
 # Initialize project
 init:
 	@echo "Initializing project..."
-	$(GO) mod init github.com/medapsis/better-auth-sdk-go || true
+	$(GO) mod init github.com/Zytera/better-auth-sdk-go || true
 	$(GO) mod tidy
 
 # Create release build

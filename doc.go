@@ -9,13 +9,13 @@
 //
 // Install the SDK using go get:
 //
-//	go get github.com/medapsis/better-auth-sdk-go
+//	go get github.com/Zytera/better-auth-sdk-go
 //
 // # Quick Start
 //
 // Initialize the client with your Better Auth configuration:
 //
-//	import betterauth "github.com/medapsis/better-auth-sdk-go"
+//	import betterauth "github.com/Zytera/better-auth-sdk-go"
 //
 //	client := betterauth.NewClient(&betterauth.Config{
 //	    BaseURL:   "https://your-app.com",
@@ -255,7 +255,7 @@
 // # Support
 //
 // For issues and questions, please visit:
-// https://github.com/medapsis/better-auth-sdk-go/issues
+// https://github.com/Zytera/better-auth-sdk-go/issues
 package betterauth
 
 const (

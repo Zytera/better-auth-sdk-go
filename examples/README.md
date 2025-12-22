@@ -218,9 +218,9 @@ go build -o bin/complete examples/complete/main.go
 ## Learn More
 
 - **SDK Documentation**: See the main [README](../README.md)
-- **API Reference**: Run `go doc -all github.com/medapsis/better-auth-sdk-go`
+- **API Reference**: Run `go doc -all github.com/Zytera/better-auth-sdk-go`
 - **Better Auth Docs**: https://www.better-auth.com/docs
-- **GitHub**: https://github.com/medapsis/better-auth-sdk-go
+- **GitHub**: https://github.com/Zytera/better-auth-sdk-go
 
 ## Troubleshooting
 
@@ -248,7 +248,7 @@ If you get validation errors:
 ## Support
 
 For issues or questions:
-- Open an issue: https://github.com/medapsis/better-auth-sdk-go/issues
+- Open an issue: https://github.com/Zytera/better-auth-sdk-go/issues
 - Check existing issues for solutions
 - Read the documentation
 

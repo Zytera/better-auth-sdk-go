@@ -183,7 +183,7 @@ import (
     "context"
     "log"
     
-    betterauth "github.com/medapsis/better-auth-sdk-go"
+    betterauth "github.com/Zytera/better-auth-sdk-go"
 )
 
 func main() {
@@ -369,12 +369,12 @@ Ejemplo comprensivo de todas las características.
 - 🏗️ PROJECT_STRUCTURE para entender el código
 
 ### Links Útiles
-- GitHub Repository: https://github.com/medapsis/better-auth-sdk-go
+- GitHub Repository: https://github.com/Zytera/better-auth-sdk-go
 - Better Auth Docs: https://www.better-auth.com/docs
-- Go Documentation: `go doc -all github.com/medapsis/better-auth-sdk-go`
+- Go Documentation: `go doc -all github.com/Zytera/better-auth-sdk-go`
 
 ### Reportar Problemas
-- GitHub Issues: https://github.com/medapsis/better-auth-sdk-go/issues
+- GitHub Issues: https://github.com/Zytera/better-auth-sdk-go/issues
 
 ---
 

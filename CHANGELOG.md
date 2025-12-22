@@ -69,7 +69,7 @@ This is the initial release of the Better Auth SDK for Go. It provides a complet
 
 **Installation:**
 ```bash
-go get github.com/medapsis/better-auth-sdk-go
+go get github.com/Zytera/better-auth-sdk-go
 ```
 
 **Quick Start:**
@@ -92,5 +92,5 @@ For more information, see the [README](README.md) and [examples](examples/).
 
 ---
 
-[Unreleased]: https://github.com/medapsis/better-auth-sdk-go/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/medapsis/better-auth-sdk-go/releases/tag/v0.1.0
+[Unreleased]: https://github.com/Zytera/better-auth-sdk-go/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/Zytera/better-auth-sdk-go/releases/tag/v0.1.0
