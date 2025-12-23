@@ -32,3 +32,13 @@ func (s *SessionService) Verify(ctx context.Context, token string) (*Session, er
 
 	return &session, nil
 }
+
+func (s *SessionService) GetSession(ctx context.Context) (*SessionData, error) {
+	var sessionData SessionData
+	err := s.client.doRequest(ctx, "GET", "/api/auth/get-session", nil, &sessionData)
+	if err != nil {
+		return nil, err
+	}
+
+	return &sessionData, nil
+}

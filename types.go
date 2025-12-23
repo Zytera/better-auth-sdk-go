@@ -33,3 +33,8 @@ type Session struct {
 	ActiveOrganizationID *string   `json:"activeOrganizationId"`
 	ImpersonatedBy       *string   `json:"impersonatedBy"`
 }
+
+type SessionData struct {
+	User    User    `json:"user"`
+	Session Session `json:"session"`
+}

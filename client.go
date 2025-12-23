@@ -12,20 +12,26 @@ import (
 
 // Client is the main Better Auth SDK client
 type Client struct {
-	config     *Config
-	HTTPClient *http.Client
+	config       *Config
+	HTTPClient   *http.Client
+	SessionToken *SessionToken
 
 	// Service modules
 	Session *SessionService
 }
 
+type SessionToken struct {
+	Cookie *http.Cookie
+}
+
 // NewClient creates a new Better Auth client
-func NewClient(config *Config) *Client {
+func NewClient(config *Config, sessionToken *SessionToken) *Client {
 	config.setDefaults()
 
 	client := &Client{
-		config:     config,
-		HTTPClient: config.HTTPClient,
+		config:       config,
+		HTTPClient:   config.HTTPClient,
+		SessionToken: sessionToken,
 	}
 
 	// Initialize services
@@ -55,12 +61,15 @@ func (c *Client) doRequest(ctx context.Context, method, path string, body interf
 	// Set headers
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Accept", "application/json")
-	if c.config.APIKey != "" {
-		req.Header.Set("X-API-Key", c.config.APIKey)
+
+	// Set session token
+	cookie := c.SessionToken.Cookie
+	if cookie != nil {
+		req.AddCookie(&http.Cookie{Name: cookie.Name, Value: cookie.Value})
 	}
 
 	// Perform request
-	resp, err := c.httpClient.Do(req)
+	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
 		return fmt.Errorf("failed to perform request: %w", err)
 	}
