@@ -35,13 +35,8 @@ admin.SetRole(ctx, userID, "admin")
 |--------|--------|--------|
 | session | `plugins/session` | ✅ verified |
 | admin | `plugins/admin` | ✅ verified |
-| phoneNumber | `plugins/phonenumber` | ✅ verified |
 | bearer | core (`client.SetBearerToken`) | ✅ verified |
 | tenancy | `plugins/tenancy` | ✅ verified (mirrors the plugin's TS client) |
-| qrAuth | `plugins/qrauth` | ⚠️ routes to confirm |
-| expoPasskey | `plugins/expopasskey` | ⚠️ routes to confirm |
-| checkPhone | `plugins/checkphone` | ⚠️ routes to confirm |
-| googleMapsProxy | `plugins/googlemapsproxy` | ⚠️ routes to confirm |
 
 ⚠️ = the endpoint paths/payloads for the custom (non-standard) plugins were
 inferred from their names and are marked with `ponytail:` comments in the
