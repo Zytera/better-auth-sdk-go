@@ -1,0 +1,111 @@
+# golangci-lint configuration file
+# See https://golangci-lint.run/usage/configuration/
+
+run:
+  timeout: 5m
+  tests: true
+  modules-download-mode: readonly
+
+linters:
+  enable:
+    - errcheck # Check for unchecked errors
+    - gosimple # Simplify code
+    - govet # Vet examines Go source code
+    - ineffassign # Detect ineffectual assignments
+    - staticcheck # Static analysis
+    - typecheck # Type checking
+    - unused # Check for unused code
+    - gofmt # Check if code is gofmt-ed
+    - goimports # Check import statements
+    - misspell # Check for commonly misspelled words
+    - goconst # Find repeated strings that could be constants
+    - gocyclo # Check cyclomatic complexity
+    - dupl # Check for code duplication
+    - gosec # Security issues
+    - unconvert # Remove unnecessary type conversions
+    - prealloc # Find slice declarations that could be preallocated
+    - exportloopref # Check for loop variable capture
+    - nolintlint # Reports ill-formed or insufficient nolint directives
+    - revive # Fast, configurable, extensible linter
+    - errname # Check error names
+    - errorlint # Find code that will cause problems with Go 1.13+ error wrapping
+
+linters-settings:
+  errcheck:
+    check-type-assertions: true
+    check-blank: true
+
+  govet:
+    check-shadowing: true
+    enable-all: true
+
+  gocyclo:
+    min-complexity: 15
+
+  dupl:
+    threshold: 100
+
+  goconst:
+    min-len: 3
+    min-occurrences: 3
+
+  misspell:
+    locale: US
+
+  goimports:
+    local-prefixes: github.com/Zytera/better-auth-sdk-go
+
+  revive:
+    rules:
+      - name: exported
+        severity: warning
+        disabled: false
+      - name: package-comments
+        severity: warning
+        disabled: false
+      - name: var-naming
+        severity: warning
+        disabled: false
+      - name: indent-error-flow
+        severity: warning
+        disabled: false
+      - name: blank-imports
+        severity: warning
+        disabled: false
+
+  gosec:
+    excludes:
+      - G104 # Audit errors not checked (covered by errcheck)
+    severity: medium
+    confidence: medium
+
+issues:
+  exclude-rules:
+    # Exclude some linters from running on tests files
+    - path: _test\.go
+      linters:
+        - gocyclo
+        - errcheck
+        - dupl
+        - gosec
+        - goconst
+
+    # Exclude some staticcheck messages
+    - linters:
+        - staticcheck
+      text: "SA9003:"
+
+    # Exclude lll issues for long lines with go:generate
+    - linters:
+        - lll
+      source: "^//go:generate "
+
+  max-issues-per-linter: 0
+  max-same-issues: 0
+  new: false
+
+output:
+  format: colored-line-number
+  print-issued-lines: true
+  print-linter-name: true
+  sort-results: true
