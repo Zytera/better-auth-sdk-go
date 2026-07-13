@@ -10,14 +10,25 @@ import (
 	"time"
 )
 
+// Requester is the minimal surface a plugin needs to talk to the server.
+// Every plugin subpackage accepts one of these (the *Client satisfies it),
+// which is how the SDK stays modular like better-auth's plugins.
+type Requester interface {
+	Do(ctx context.Context, method, path string, body, result interface{}) error
+}
+
 // Client is the main Better Auth SDK client
 type Client struct {
 	config       *Config
 	HTTPClient   *http.Client
 	SessionToken *SessionToken
+	bearerToken  string
+}
 
-	// Service modules
-	Session *SessionService
+// SetBearerToken enables the bearer plugin: subsequent requests carry an
+// "Authorization: Bearer <token>" header. Pass "" to disable.
+func (c *Client) SetBearerToken(token string) {
+	c.bearerToken = token
 }
 
 type SessionToken struct {
@@ -28,20 +39,16 @@ type SessionToken struct {
 func NewClient(config *Config, sessionToken *SessionToken) *Client {
 	config.setDefaults()
 
-	client := &Client{
+	return &Client{
 		config:       config,
 		HTTPClient:   config.HTTPClient,
 		SessionToken: sessionToken,
 	}
-
-	// Initialize services
-	client.Session = newSessionService(client)
-
-	return client
 }
 
-// doRequest performs an HTTP request with proper headers and error handling
-func (c *Client) doRequest(ctx context.Context, method, path string, body interface{}, result interface{}) error {
+// Do perform an HTTP request with proper headers and error handling.
+// Plugins call this via the Requester interface.
+func (c *Client) Do(ctx context.Context, method, path string, body, result interface{}) error {
 	var reqBody io.Reader
 
 	if body != nil {
@@ -52,7 +59,7 @@ func (c *Client) doRequest(ctx context.Context, method, path string, body interf
 		reqBody = bytes.NewBuffer(jsonData)
 	}
 
-	url := c.config.BaseURL + path
+	url := c.config.BaseURL + c.config.BasePath + path
 	req, err := http.NewRequestWithContext(ctx, method, url, reqBody)
 	if err != nil {
 		return fmt.Errorf("failed to create request: %w", err)
@@ -66,6 +73,11 @@ func (c *Client) doRequest(ctx context.Context, method, path string, body interf
 	cookie := c.SessionToken.Cookie
 	if cookie != nil {
 		req.AddCookie(&http.Cookie{Name: cookie.Name, Value: cookie.Value})
+	}
+
+	// bearer plugin: send the token as an Authorization header when set.
+	if c.bearerToken != "" {
+		req.Header.Set("Authorization", "Bearer "+c.bearerToken)
 	}
 
 	// Perform request

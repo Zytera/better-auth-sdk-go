@@ -4,6 +4,7 @@ A Go SDK for [Better Auth](https://www.better-auth.com/), providing a clean and 
 
 ## Features
 
+- 🧩 **Modular Plugins** - Mirror your server's Better Auth plugins; import only what you use
 - 🔐 **Session Management** - Verify and retrieve session information
 - 🚀 **Simple API** - Clean and intuitive Go interfaces
 - ⚡ **Context Support** - Built-in support for `context.Context`
@@ -11,6 +12,76 @@ A Go SDK for [Better Auth](https://www.better-auth.com/), providing a clean and 
 - 🔧 **Configurable** - Flexible configuration options
 - 📦 **Zero Dependencies** - Uses only Go standard library
 - ⚠️ **Rich Error Handling** - Detailed error types and messages
+
+## Plugins
+
+The core client is a thin transport. Everything else lives in a subpackage
+under `plugins/`, one per server plugin. Construct a plugin by passing it the
+client (any `betterauth.Requester`):
+
+```go
+client := betterauth.NewClient(config, sessionToken)
+
+sess  := session.New(client)
+admin := admin.New(client)
+phone := phonenumber.New(client)
+
+data, _ := sess.Get(ctx)
+phone.SendOTP(ctx, "+34600000000")
+admin.SetRole(ctx, userID, "admin")
+```
+
+| Plugin | Import | Status |
+|--------|--------|--------|
+| session | `plugins/session` | ✅ verified |
+| admin | `plugins/admin` | ✅ verified |
+| phoneNumber | `plugins/phonenumber` | ✅ verified |
+| bearer | core (`client.SetBearerToken`) | ✅ verified |
+| tenancy | `plugins/tenancy` | ✅ verified (mirrors the plugin's TS client) |
+| qrAuth | `plugins/qrauth` | ⚠️ routes to confirm |
+| expoPasskey | `plugins/expopasskey` | ⚠️ routes to confirm |
+| checkPhone | `plugins/checkphone` | ⚠️ routes to confirm |
+| googleMapsProxy | `plugins/googlemapsproxy` | ⚠️ routes to confirm |
+
+⚠️ = the endpoint paths/payloads for the custom (non-standard) plugins were
+inferred from their names and are marked with `ponytail:` comments in the
+source. Confirm them against your server handlers.
+
+Writing your own plugin: see [DEVELOPMENT.md](DEVELOPMENT.md).
+
+### bearer
+
+The bearer plugin is transport, not an endpoint, so it lives on the client:
+
+```go
+client.SetBearerToken("your-jwt")   // adds "Authorization: Bearer ..." to every request
+client.SetBearerToken("")           // disable
+```
+
+### tenancy
+
+The tenancy plugin has a large surface, so it's grouped into sub-services
+(`Organization`, `Team`, `Statement`, `Role`, `Member`, `Permission`,
+`Invitation`) mirroring the plugin's TypeScript client:
+
+```go
+ten := tenancy.New(client)
+
+org, _  := ten.Organization.Create(ctx, tenancy.CreateOrgInput{Name: "Acme", Slug: "acme"})
+team, _ := ten.Team.Create(ctx, tenancy.CreateTeamInput{
+    ParentType: tenancy.ContextOrganization, ParentID: org.ID,
+    Name: "Engineering", Slug: "engineering",
+})
+ten.Member.Add(ctx, tenancy.AddMemberInput{UserID: uid, ContextType: tenancy.ContextTeam, ContextID: team.ID})
+
+ok, _ := ten.Permission.Check(ctx, tenancy.DenyInput{
+    UserID: uid, StatementID: "member:add",
+    ContextType: tenancy.ContextTeam, ContextID: team.ID,
+})
+```
+
+List endpoints take a `tenancy.ListQuery{Limit, Offset, OrderBy, OrderDirection}`
+and return `*tenancy.List[T]` (`Items`, `Total`, `Limit`, `Offset`).
 
 ## Installation
 
@@ -36,6 +107,7 @@ import (
     "net/http"
     
     betterauth "github.com/Zytera/better-auth-sdk-go"
+    "github.com/Zytera/better-auth-sdk-go/plugins/session"
 )
 
 func main() {
@@ -52,12 +124,13 @@ func main() {
         },
     }
     
-    // Initialize the client
+    // Initialize the client and the session plugin
     client := betterauth.NewClient(config, sessionToken)
+    sess := session.New(client)
     
     // Get session data
     ctx := context.Background()
-    sessionData, err := client.Session.GetSession(ctx)
+    sessionData, err := sess.Get(ctx)
     if err != nil {
         log.Fatal(err)
     }
@@ -83,8 +156,8 @@ func authMiddleware(client *betterauth.Client) func(http.Handler) http.Handler {
             // Update client session token
             client.SessionToken = &betterauth.SessionToken{Cookie: cookie}
             
-            // Verify session
-            sessionData, err := client.Session.GetSession(r.Context())
+            // Verify session (sess := session.New(client), created once)
+            sessionData, err := sess.Get(r.Context())
             if err != nil {
                 http.Error(w, "Invalid session", http.StatusUnauthorized)
                 return
@@ -121,6 +194,7 @@ client := betterauth.NewClient(config, sessionToken)
 ```go
 type Config struct {
     BaseURL    string        // Base URL of your Better Auth server (required)
+    BasePath   string        // Where Better Auth is mounted (default: "/api/auth")
     Timeout    time.Duration // HTTP client timeout (default: 30s)
     HTTPClient *http.Client  // Custom HTTP client (optional)
     Debug      bool          // Enable debug logging
@@ -137,14 +211,17 @@ config := &betterauth.Config{
 }
 ```
 
-### Session Service
+### Session Plugin
 
-#### GetSession
+Import `plugins/session` and construct with `session.New(client)`.
+
+#### Get
 
 Retrieves the current user session and user information.
 
 ```go
-sessionData, err := client.Session.GetSession(ctx)
+sess := session.New(client)
+sessionData, err := sess.Get(ctx)
 ```
 
 **Returns:** `*SessionData`, `error`
@@ -163,7 +240,7 @@ type SessionData struct {
 Verifies a session token.
 
 ```go
-session, err := client.Session.Verify(ctx, "token-string")
+session, err := sess.Verify(ctx, "token-string")
 ```
 
 **Parameters:**
@@ -296,6 +373,7 @@ import (
     "net/http"
     
     betterauth "github.com/Zytera/better-auth-sdk-go"
+    "github.com/Zytera/better-auth-sdk-go/plugins/session"
 )
 
 func main() {
@@ -314,13 +392,13 @@ func main() {
             return
         }
         
-        // Create client with session token
+        // Create client + session plugin with the session token
         client := betterauth.NewClient(config, &betterauth.SessionToken{
             Cookie: cookie,
         })
         
         // Get session
-        sessionData, err := client.Session.GetSession(r.Context())
+        sessionData, err := session.New(client).Get(r.Context())
         if err != nil {
             if betterauth.IsUnauthorizedError(err) {
                 http.Error(w, "Invalid session", http.StatusUnauthorized)
@@ -384,7 +462,7 @@ func TestSessionRetrieval(t *testing.T) {
     client := betterauth.NewClient(config, sessionToken)
     
     ctx := context.Background()
-    sessionData, err := client.Session.GetSession(ctx)
+    sessionData, err := session.New(client).Get(ctx)
     
     if err != nil {
         t.Fatalf("Expected no error, got %v", err)
@@ -400,13 +478,22 @@ func TestSessionRetrieval(t *testing.T) {
 
 ```
 better-auth-sdk-go/
-├── client.go       # Main client implementation
+├── client.go       # Core client + Requester interface + bearer support
 ├── config.go       # Configuration structures
 ├── errors.go       # Error types and handling
-├── session.go      # Session service implementation
-├── types.go        # Type definitions (User, Session, etc.)
+├── types.go        # Shared types (User, Session, etc.)
 ├── validation.go   # Validation utilities
+├── plugins/        # One subpackage per server plugin
+│   ├── session/
+│   ├── admin/
+│   ├── phonenumber/
+│   ├── tenancy/
+│   ├── qrauth/
+│   ├── expopasskey/
+│   ├── checkphone/
+│   └── googlemapsproxy/
 ├── go.mod          # Go module definition
+├── DEVELOPMENT.md  # How to write your own plugin
 ├── LICENSE         # GPL-3.0 license
 └── README.md       # This file
 ```
