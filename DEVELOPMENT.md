@@ -130,7 +130,7 @@ Every other plugin is used the exact same way: `pkg.New(client)`, then call.
 ## Conventions
 
 - **One package per server plugin**, named after it (lowercase, no separators:
-  `phonenumber`, `expopasskey`).
+  `admin`, `tenancy`).
 - **`New(r betterauth.Requester) *Plugin`** is the constructor. Always accept
   the interface, never the concrete `*Client`.
 - **Paths are relative** to `Config.BasePath` (default `/api/auth`). A server

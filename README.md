@@ -22,20 +22,21 @@ client (any `betterauth.Requester`):
 ```go
 client := betterauth.NewClient(config, sessionToken)
 
-sess  := session.New(client)
-adm   := admin.New(client)
-ten   := tenancy.New(client)
+sess := session.New(client)
+adm  := admin.New(client)
+ten  := tenancy.New(client)
 
 data, _ := sess.Get(ctx)
 adm.SetRole(ctx, userID, "admin")
+_ = ten
 ```
 
-| Plugin | Import | Status |
-|--------|--------|--------|
-| session | `plugins/session` | ✅ verified |
-| admin | `plugins/admin` | ✅ verified |
-| bearer | core (`client.SetBearerToken`) | ✅ verified |
-| tenancy | `plugins/tenancy` | ✅ verified (mirrors the plugin's TS client) |
+| Plugin | Import | Notes |
+|--------|--------|-------|
+| session | `plugins/session` | Get / verify the current session |
+| admin | `plugins/admin` | User administration |
+| bearer | core (`client.SetBearerToken`) | Transport, not an endpoint |
+| tenancy | `plugins/tenancy` | Orgs/teams/roles/permissions (mirrors the plugin's TS client) |
 
 Writing your own plugin: see [DEVELOPMENT.md](DEVELOPMENT.md).
 
