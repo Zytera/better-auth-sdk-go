@@ -143,7 +143,8 @@ Every other plugin is used the exact same way: `pkg.New(client)`, then call.
 - **Return errors as-is** — `Do` already produces typed `*betterauth.Error`s.
 - **Flag unverified routes.** If you can't confirm a path/payload against the
   server yet, leave a `// ponytail: route guessed — confirm against server`
-  comment so it's not mistaken for verified.
+  comment so it's not mistaken for verified. None of the current built-in
+  plugins need this marker; use it when you add new unverified endpoints.
 
 ## Third-party plugins
 

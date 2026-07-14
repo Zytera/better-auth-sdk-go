@@ -1,7 +1,7 @@
 // Example: a tour of the plugin API — session, admin, tenancy.
 //
 // Each plugin is constructed the same way: pkg.New(client).
-// Run: go run ./claude/examples/complete
+// Run: go run ./examples/complete
 package main
 
 import (

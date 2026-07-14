@@ -1,7 +1,7 @@
 // Example: using the admin plugin.
 //
 // The client must be authenticated as an admin user (cookie or bearer token).
-// Run: go run ./claude/examples/admin_plugin
+// Run: go run ./examples/admin_plugin
 package main
 
 import (
@@ -55,7 +55,7 @@ func main() {
 	}
 
 	// 6. List users.
-	list, err := adm.ListUsers(ctx, map[string]interface{}{"limit": 10})
+	list, err := adm.ListUsers(ctx, admin.ListUsersQuery{Limit: 10})
 	if err != nil {
 		log.Fatalf("list: %v", err)
 	}

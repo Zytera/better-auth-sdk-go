@@ -1,6 +1,6 @@
 // Example: HTTP middleware that authenticates requests with the session plugin.
 //
-// Run: go run ./claude/examples/middleware
+// Run: go run ./examples/middleware
 // Then: curl -H 'Cookie: better-auth.session_token=TOKEN' localhost:8080/api/protected
 package main
 

@@ -1,7 +1,7 @@
 // Example: the two ways a backend authenticates against Better Auth — a
 // session cookie or a bearer token — both resolved via the session plugin.
 //
-// Run: go run ./claude/examples/basic_auth
+// Run: go run ./examples/basic_auth
 package main
 
 import (

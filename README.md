@@ -22,11 +22,13 @@ client (any `betterauth.Requester`):
 ```go
 client := betterauth.NewClient(config, sessionToken)
 
-sess  := session.New(client)
-admin := admin.New(client)
+sess := session.New(client)
+adm  := admin.New(client)
+ten  := tenancy.New(client)
 
 data, _ := sess.Get(ctx)
-admin.SetRole(ctx, userID, "admin")
+adm.SetRole(ctx, userID, "admin")
+_ = ten
 ```
 
 | Plugin | Import | Notes |
@@ -63,7 +65,7 @@ team, _ := ten.Team.Create(ctx, tenancy.CreateTeamInput{
 })
 ten.Member.Add(ctx, tenancy.AddMemberInput{UserID: uid, ContextType: tenancy.ContextTeam, ContextID: team.ID})
 
-ok, _ := ten.Permission.Check(ctx, tenancy.DenyInput{
+ok, _ := ten.Permission.Check(ctx, tenancy.CheckInput{
     UserID: uid, StatementID: "member:add",
     ContextType: tenancy.ContextTeam, ContextID: team.ID,
 })
@@ -133,6 +135,7 @@ func main() {
 
 ```go
 func authMiddleware(client *betterauth.Client) func(http.Handler) http.Handler {
+    sess := session.New(client)
     return func(next http.Handler) http.Handler {
         return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
             // Get the session cookie
@@ -145,7 +148,7 @@ func authMiddleware(client *betterauth.Client) func(http.Handler) http.Handler {
             // Update client session token
             client.SessionToken = &betterauth.SessionToken{Cookie: cookie}
             
-            // Verify session (sess := session.New(client), created once)
+            // Verify session
             sessionData, err := sess.Get(r.Context())
             if err != nil {
                 http.Error(w, "Invalid session", http.StatusUnauthorized)
@@ -308,7 +311,8 @@ const (
 ### Error Checking
 
 ```go
-sessionData, err := client.Session.GetSession(ctx)
+sess := session.New(client)
+sessionData, err := sess.Get(ctx)
 if err != nil {
     if betterauth.IsUnauthorizedError(err) {
         // Handle unauthorized error

@@ -1,6 +1,6 @@
-// Example: using the session plugin.
+// Example: session management via the session plugin.
 //
-// Run: go run ./claude/examples/session_plugin
+// Run: go run ./examples/session_management
 package main
 
 import (
@@ -14,7 +14,8 @@ import (
 )
 
 func main() {
-	// 1. Core client authenticated with a session cookie.
+	// A client is bound to one session token (here, a cookie). To act as a
+	// different user, build another client with that user's token.
 	client := betterauth.NewClient(
 		&betterauth.Config{BaseURL: "https://your-app.com"},
 		&betterauth.SessionToken{Cookie: &http.Cookie{
@@ -22,24 +23,26 @@ func main() {
 			Value: "your-session-token-here",
 		}},
 	)
-
-	// 2. The session plugin — just pass it the client.
 	sess := session.New(client)
 
 	ctx := context.Background()
 
-	// 3a. Get the current session + user for the cookie above.
+	// Current session + user for this client's token.
+	fmt.Println("=== Get Session ===")
 	data, err := sess.Get(ctx)
 	if err != nil {
 		log.Fatalf("get session: %v", err)
 	}
 	fmt.Printf("User:    %s (%s)\n", data.User.Name, data.User.Email)
-	fmt.Printf("Session: %s (expires %s)\n", data.Session.ID, data.Session.ExpiresAt)
+	fmt.Printf("Session: %s (expires %s)\n\n", data.Session.ID, data.Session.ExpiresAt)
 
-	// 3b. Verify an arbitrary token.
+	// Verify an arbitrary token (e.g. one received from a client app).
+	fmt.Println("=== Verify Token ===")
 	s, err := sess.Verify(ctx, data.Session.Token)
 	if err != nil {
 		log.Fatalf("verify: %v", err)
 	}
-	fmt.Printf("Token valid for user %s\n", s.UserID)
+	fmt.Printf("Token valid for user %s until %s\n", s.UserID, s.ExpiresAt)
+
+	// Note: listing/revoking sessions is not wrapped in the session plugin yet.
 }

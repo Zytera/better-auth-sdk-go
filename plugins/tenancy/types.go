@@ -104,6 +104,14 @@ type CheckResult struct {
 	Details map[string]interface{} `json:"details,omitempty"`
 }
 
+// CheckInput is the payload for Permission.Check.
+type CheckInput struct {
+	UserID      string      `json:"userId"`
+	StatementID string      `json:"statementId"`
+	ContextType ContextType `json:"contextType"`
+	ContextID   string      `json:"contextId"`
+}
+
 // Invitation is a context invitation (email/phone/code/QR agnostic).
 type Invitation struct {
 	ID             string                 `json:"id"`
