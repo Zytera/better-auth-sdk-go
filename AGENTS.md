@@ -30,6 +30,13 @@ better-auth-sdk-go/
 ├── README.md       # User-facing documentation
 ├── DEVELOPMENT.md  # How to write a new plugin
 ├── LICENSE         # GPL-3.0
+├── examples/       # Runnable examples, one per subdir (package main)
+│   ├── basic_auth/         # Cookie vs bearer auth via the session plugin
+│   ├── session_plugin/     # session.Get / Verify
+│   ├── session_management/ # Session management around a client
+│   ├── middleware/         # HTTP middleware authenticating with the session plugin
+│   ├── admin_plugin/       # User administration
+│   └── complete/           # Tour across session, admin and tenancy
 └── plugins/        # One package per server plugin
     ├── admin/
     │   ├── admin.go
@@ -42,6 +49,9 @@ better-auth-sdk-go/
         ├── tenancy_test.go
         └── types.go
 ```
+
+Each `examples/` subdirectory is its own `package main`; run one with
+`go run ./examples/<name>`. They all use the current plugin API.
 
 The root package name is `betterauth`. Plugin packages have their own names (`admin`, `session`, `tenancy`) and import the root module.
 
