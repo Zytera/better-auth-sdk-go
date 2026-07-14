@@ -10,6 +10,10 @@ type Config struct {
 	// BaseURL is the base URL of your Better Auth server
 	BaseURL string
 
+	// BasePath is where Better Auth is mounted (default: "/api/auth").
+	// Override only if your server sets a custom basePath.
+	BasePath string
+
 	// Timeout is the HTTP client timeout (default: 30 seconds)
 	Timeout time.Duration
 
@@ -36,6 +40,10 @@ func (c *Config) Validate() error {
 func (c *Config) setDefaults() {
 	if c.Timeout == 0 {
 		c.Timeout = 30 * time.Second
+	}
+
+	if c.BasePath == "" {
+		c.BasePath = "/api/auth"
 	}
 
 	if c.HTTPClient == nil {

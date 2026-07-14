@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 )
 
 // ErrorType represents the type of error
@@ -157,10 +158,19 @@ type ErrorResponse struct {
 func parseErrorResponse(statusCode int, body []byte) error {
 	var errResp ErrorResponse
 	if err := json.Unmarshal(body, &errResp); err != nil {
-		// If we can't parse the error response, return a generic error
+		// If we can't parse the error response, return a generic error with a
+		// truncated message so an HTML error page (e.g. from a proxy) does not
+		// flood the caller.
+		msg := strings.TrimSpace(string(body))
+		if len(msg) > 512 {
+			msg = msg[:512] + "..."
+		}
+		if msg == "" {
+			msg = fmt.Sprintf("HTTP %d error", statusCode)
+		}
 		return &Error{
 			Type:       ErrorTypeInternal,
-			Message:    string(body),
+			Message:    msg,
 			StatusCode: statusCode,
 		}
 	}
