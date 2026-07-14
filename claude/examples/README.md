@@ -2,6 +2,33 @@
 
 This directory contains example applications demonstrating how to use the Better Auth SDK for Go.
 
+## Plugin Examples (current API)
+
+These use the modular plugin API (`plugins/*`) and build against the current SDK:
+
+### Session plugin (`session_plugin/`)
+
+Get the current session/user and verify a token via `session.New(client)`.
+
+```bash
+go run ./claude/examples/session_plugin
+```
+
+### Admin plugin (`admin_plugin/`)
+
+Create/promote/ban/list/impersonate users via `admin.New(client)`, using a
+bearer token for auth.
+
+```bash
+go run ./claude/examples/admin_plugin
+```
+
+---
+
+> ⚠️ The examples below predate the plugin refactor and reference an older API
+> (`client.Auth`, `APIKey`, `client.Session.GetSession`). Kept for reference; use
+> the plugin examples above.
+
 ## Available Examples
 
 ### 1. Basic Authentication (`basic_auth/`)

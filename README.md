@@ -24,23 +24,17 @@ client := betterauth.NewClient(config, sessionToken)
 
 sess  := session.New(client)
 admin := admin.New(client)
-phone := phonenumber.New(client)
 
 data, _ := sess.Get(ctx)
-phone.SendOTP(ctx, "+34600000000")
 admin.SetRole(ctx, userID, "admin")
 ```
 
-| Plugin | Import | Status |
-|--------|--------|--------|
-| session | `plugins/session` | ✅ verified |
-| admin | `plugins/admin` | ✅ verified |
-| bearer | core (`client.SetBearerToken`) | ✅ verified |
-| tenancy | `plugins/tenancy` | ✅ verified (mirrors the plugin's TS client) |
-
-⚠️ = the endpoint paths/payloads for the custom (non-standard) plugins were
-inferred from their names and are marked with `ponytail:` comments in the
-source. Confirm them against your server handlers.
+| Plugin | Import | Notes |
+|--------|--------|-------|
+| session | `plugins/session` | Get / verify the current session |
+| admin | `plugins/admin` | User administration |
+| bearer | core (`client.SetBearerToken`) | Transport, not an endpoint |
+| tenancy | `plugins/tenancy` | Orgs/teams/roles/permissions (mirrors the plugin's TS client) |
 
 Writing your own plugin: see [DEVELOPMENT.md](DEVELOPMENT.md).
 
@@ -481,12 +475,7 @@ better-auth-sdk-go/
 ├── plugins/        # One subpackage per server plugin
 │   ├── session/
 │   ├── admin/
-│   ├── phonenumber/
-│   ├── tenancy/
-│   ├── qrauth/
-│   ├── expopasskey/
-│   ├── checkphone/
-│   └── googlemapsproxy/
+│   └── tenancy/
 ├── go.mod          # Go module definition
 ├── DEVELOPMENT.md  # How to write your own plugin
 ├── LICENSE         # GPL-3.0 license
