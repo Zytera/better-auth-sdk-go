@@ -23,12 +23,11 @@ client (any `betterauth.Requester`):
 client := betterauth.NewClient(config, sessionToken)
 
 sess  := session.New(client)
-admin := admin.New(client)
-phone := phonenumber.New(client)
+adm   := admin.New(client)
+ten   := tenancy.New(client)
 
 data, _ := sess.Get(ctx)
-phone.SendOTP(ctx, "+34600000000")
-admin.SetRole(ctx, userID, "admin")
+adm.SetRole(ctx, userID, "admin")
 ```
 
 | Plugin | Import | Status |
@@ -37,10 +36,6 @@ admin.SetRole(ctx, userID, "admin")
 | admin | `plugins/admin` | ✅ verified |
 | bearer | core (`client.SetBearerToken`) | ✅ verified |
 | tenancy | `plugins/tenancy` | ✅ verified (mirrors the plugin's TS client) |
-
-⚠️ = the endpoint paths/payloads for the custom (non-standard) plugins were
-inferred from their names and are marked with `ponytail:` comments in the
-source. Confirm them against your server handlers.
 
 Writing your own plugin: see [DEVELOPMENT.md](DEVELOPMENT.md).
 
@@ -69,7 +64,7 @@ team, _ := ten.Team.Create(ctx, tenancy.CreateTeamInput{
 })
 ten.Member.Add(ctx, tenancy.AddMemberInput{UserID: uid, ContextType: tenancy.ContextTeam, ContextID: team.ID})
 
-ok, _ := ten.Permission.Check(ctx, tenancy.DenyInput{
+ok, _ := ten.Permission.Check(ctx, tenancy.CheckInput{
     UserID: uid, StatementID: "member:add",
     ContextType: tenancy.ContextTeam, ContextID: team.ID,
 })
@@ -139,6 +134,7 @@ func main() {
 
 ```go
 func authMiddleware(client *betterauth.Client) func(http.Handler) http.Handler {
+    sess := session.New(client)
     return func(next http.Handler) http.Handler {
         return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
             // Get the session cookie
@@ -151,7 +147,7 @@ func authMiddleware(client *betterauth.Client) func(http.Handler) http.Handler {
             // Update client session token
             client.SessionToken = &betterauth.SessionToken{Cookie: cookie}
             
-            // Verify session (sess := session.New(client), created once)
+            // Verify session
             sessionData, err := sess.Get(r.Context())
             if err != nil {
                 http.Error(w, "Invalid session", http.StatusUnauthorized)
@@ -314,7 +310,8 @@ const (
 ### Error Checking
 
 ```go
-sessionData, err := client.Session.GetSession(ctx)
+sess := session.New(client)
+sessionData, err := sess.Get(ctx)
 if err != nil {
     if betterauth.IsUnauthorizedError(err) {
         // Handle unauthorized error
@@ -481,12 +478,7 @@ better-auth-sdk-go/
 ├── plugins/        # One subpackage per server plugin
 │   ├── session/
 │   ├── admin/
-│   ├── phonenumber/
-│   ├── tenancy/
-│   ├── qrauth/
-│   ├── expopasskey/
-│   ├── checkphone/
-│   └── googlemapsproxy/
+│   └── tenancy/
 ├── go.mod          # Go module definition
 ├── DEVELOPMENT.md  # How to write your own plugin
 ├── LICENSE         # GPL-3.0 license

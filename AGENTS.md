@@ -32,9 +32,11 @@ better-auth-sdk-go/
 ├── LICENSE         # GPL-3.0
 └── plugins/        # One package per server plugin
     ├── admin/
-    │   └── admin.go
+    │   ├── admin.go
+    │   └── admin_test.go
     ├── session/
-    │   └── session.go
+    │   ├── session.go
+    │   └── session_test.go
     └── tenancy/
         ├── tenancy.go
         ├── tenancy_test.go
@@ -95,12 +97,15 @@ type Requester interface {
 `*Client` implements `Requester`. `Do`:
 
 1. Marshals `body` to JSON (if non-nil).
-2. Builds the URL as `Config.BaseURL + Config.BasePath + path`.
+2. Builds the URL by joining `Config.BaseURL`, `Config.BasePath` and the supplied
+   path with `url.Parse` / `url.URL.JoinPath`, preserving any query string.
 3. Adds `Content-Type: application/json` and `Accept: application/json` headers.
-4. Adds the session cookie from `SessionToken.Cookie`.
-5. Adds `Authorization: Bearer <token>` if `SetBearerToken` was called.
+4. Adds the session cookie from `SessionToken.Cookie` when `SessionToken` is non-nil.
+5. Adds `Authorization: Bearer <token>` if `SetBearerToken` was called. Reads are
+   synchronized with the bearer-token write so the client is safe for concurrent use.
 6. Sends the request and unmarshals the JSON response into `result`.
-7. Returns a typed `*betterauth.Error` for HTTP >= 400.
+7. Maps network and timeout errors to `ErrorTypeNetwork` / `ErrorTypeTimeout`.
+8. Returns a typed `*betterauth.Error` for HTTP >= 400.
 
 `NewClient(config, sessionToken)` creates a client. `Config.setDefaults()` applies:
 
@@ -185,7 +190,8 @@ The bearer plugin is not a separate package; enable it with `client.SetBearerTok
 
 ## Common gotchas
 
-- `Requester.Do` prepends `Config.BasePath` to the path you pass. Plugins must call `/session/verify`, not `/api/auth/session/verify`.
-- `Config.Debug` exists but is not wired to any logger yet; adding debug logging is a future concern.
+- `Requester.Do` prepends `Config.BasePath` to the path you pass. Plugins must call `/session/verify`, not `/api/auth/session/verify`. Paths may include a query string; it is preserved when the final URL is built.
+- `Config.Debug` is wired to `log.Printf` and prints the method/URL before each request and the status code after the response.
+- `SetTimeout` updates the timeout on an internal copy of the HTTP client. If you pass a custom `Config.HTTPClient`, the original client is not mutated.
 - The root package intentionally does not contain high-level services like `client.Auth` or `client.User`; use the plugin packages instead.
 - The project currently has no root-level `Makefile`, `.golangci.yml`, or GitHub Actions workflow.

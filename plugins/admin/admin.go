@@ -28,6 +28,13 @@ type CreateUserInput struct {
 
 // CreateUser creates a user with an explicit role.
 func (p *Plugin) CreateUser(ctx context.Context, in CreateUserInput) (*betterauth.User, error) {
+	if in.Email == "" {
+		return nil, betterauth.NewError(betterauth.ErrorTypeValidation, "email is required")
+	}
+	if in.Password == "" {
+		return nil, betterauth.NewError(betterauth.ErrorTypeValidation, "password is required")
+	}
+
 	var out struct {
 		User betterauth.User `json:"user"`
 	}
@@ -45,11 +52,32 @@ type ListUsersResult struct {
 	Offset int               `json:"offset"`
 }
 
-// ListUsers lists users. Pass query params (limit, offset, searchValue, ...)
-// or nil for defaults.
-func (p *Plugin) ListUsers(ctx context.Context, query map[string]interface{}) (*ListUsersResult, error) {
+// ListUsersQuery holds the supported filters for ListUsers.
+type ListUsersQuery struct {
+	Limit       int
+	Offset      int
+	SearchValue string
+	SearchField string
+}
+
+// ListUsers lists users. Pass a zero-value query for defaults.
+func (p *Plugin) ListUsers(ctx context.Context, query ListUsersQuery) (*ListUsersResult, error) {
+	body := map[string]interface{}{}
+	if query.Limit > 0 {
+		body["limit"] = query.Limit
+	}
+	if query.Offset > 0 {
+		body["offset"] = query.Offset
+	}
+	if query.SearchValue != "" {
+		body["searchValue"] = query.SearchValue
+	}
+	if query.SearchField != "" {
+		body["searchField"] = query.SearchField
+	}
+
 	var out ListUsersResult
-	if err := p.r.Do(ctx, "POST", "/admin/list-users", query, &out); err != nil {
+	if err := p.r.Do(ctx, "POST", "/admin/list-users", body, &out); err != nil {
 		return nil, err
 	}
 	return &out, nil
@@ -57,6 +85,12 @@ func (p *Plugin) ListUsers(ctx context.Context, query map[string]interface{}) (*
 
 // SetRole sets a user's role.
 func (p *Plugin) SetRole(ctx context.Context, userID, role string) error {
+	if userID == "" {
+		return betterauth.NewError(betterauth.ErrorTypeValidation, "userID is required")
+	}
+	if role == "" {
+		return betterauth.NewError(betterauth.ErrorTypeValidation, "role is required")
+	}
 	return p.r.Do(ctx, "POST", "/admin/set-role", map[string]string{
 		"userId": userID,
 		"role":   role,
@@ -65,6 +99,12 @@ func (p *Plugin) SetRole(ctx context.Context, userID, role string) error {
 
 // SetUserPassword sets a new password for a user.
 func (p *Plugin) SetUserPassword(ctx context.Context, userID, newPassword string) error {
+	if userID == "" {
+		return betterauth.NewError(betterauth.ErrorTypeValidation, "userID is required")
+	}
+	if newPassword == "" {
+		return betterauth.NewError(betterauth.ErrorTypeValidation, "newPassword is required")
+	}
 	return p.r.Do(ctx, "POST", "/admin/set-user-password", map[string]string{
 		"userId":      userID,
 		"newPassword": newPassword,
@@ -73,6 +113,9 @@ func (p *Plugin) SetUserPassword(ctx context.Context, userID, newPassword string
 
 // BanUser bans a user. reason and expiresIn (seconds) are optional (pass "" / 0).
 func (p *Plugin) BanUser(ctx context.Context, userID, reason string, expiresIn int) error {
+	if userID == "" {
+		return betterauth.NewError(betterauth.ErrorTypeValidation, "userID is required")
+	}
 	body := map[string]interface{}{"userId": userID}
 	if reason != "" {
 		body["banReason"] = reason
@@ -85,6 +128,9 @@ func (p *Plugin) BanUser(ctx context.Context, userID, reason string, expiresIn i
 
 // UnbanUser lifts a ban.
 func (p *Plugin) UnbanUser(ctx context.Context, userID string) error {
+	if userID == "" {
+		return betterauth.NewError(betterauth.ErrorTypeValidation, "userID is required")
+	}
 	return p.r.Do(ctx, "POST", "/admin/unban-user", map[string]string{
 		"userId": userID,
 	}, nil)
@@ -92,6 +138,9 @@ func (p *Plugin) UnbanUser(ctx context.Context, userID string) error {
 
 // RemoveUser hard-deletes a user.
 func (p *Plugin) RemoveUser(ctx context.Context, userID string) error {
+	if userID == "" {
+		return betterauth.NewError(betterauth.ErrorTypeValidation, "userID is required")
+	}
 	return p.r.Do(ctx, "POST", "/admin/remove-user", map[string]string{
 		"userId": userID,
 	}, nil)
@@ -99,6 +148,9 @@ func (p *Plugin) RemoveUser(ctx context.Context, userID string) error {
 
 // ImpersonateUser starts an impersonation session for the given user.
 func (p *Plugin) ImpersonateUser(ctx context.Context, userID string) (*betterauth.SessionData, error) {
+	if userID == "" {
+		return nil, betterauth.NewError(betterauth.ErrorTypeValidation, "userID is required")
+	}
 	var out betterauth.SessionData
 	if err := p.r.Do(ctx, "POST", "/admin/impersonate-user", map[string]string{
 		"userId": userID,
