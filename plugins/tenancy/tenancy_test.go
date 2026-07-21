@@ -19,6 +19,8 @@ func TestRoutesAndQuery(t *testing.T) {
 			w.Write([]byte(`{"items":[{"id":"o1","name":"Acme"}],"total":1}`))
 		case "/custom/auth/tenancy/member/check":
 			w.Write([]byte(`{"isMember":true}`))
+		case "/custom/auth/tenancy/permission/contexts":
+			w.Write([]byte(`{"contexts":[{"contextType":"organization","contextId":"o1","name":"Acme","parentType":null,"parentId":null,"organizationId":"o1","source":"membership"}]}`))
 		default:
 			w.Write([]byte(`{"id":"x"}`))
 		}
@@ -60,5 +62,22 @@ func TestRoutesAndQuery(t *testing.T) {
 	}
 	if gotMethod != "POST" {
 		t.Fatalf("Check should POST, got %s", gotMethod)
+	}
+
+	// GET permission/contexts: optional-param encoding + nullable-field decode.
+	ctxs, err := p.Permission.Contexts(ctx, tenancy.ContextsQuery{
+		StatementID: "doc:read", ContextType: tenancy.ContextOrganization, IncludeDescendants: true,
+	})
+	if err != nil {
+		t.Fatalf("Contexts: %v", err)
+	}
+	if gotMethod != "GET" || gotPath != "/custom/auth/tenancy/permission/contexts" {
+		t.Fatalf("bad route: %s %s", gotMethod, gotPath)
+	}
+	if gotQuery != "contextType=organization&includeDescendants=true&statementId=doc%3Aread" {
+		t.Fatalf("bad query: %q", gotQuery)
+	}
+	if len(ctxs) != 1 || ctxs[0].OrganizationID != "o1" || ctxs[0].ParentType != nil || ctxs[0].RoleID != nil {
+		t.Fatalf("bad decode: %+v", ctxs)
 	}
 }

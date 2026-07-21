@@ -627,6 +627,38 @@ func (s *permissionService) ListDenies(ctx context.Context, userID string, limit
 	return out, err
 }
 
+// ContextsQuery holds the optional filters for Permission.Contexts. All fields
+// are optional; the zero value lists every context the user can access.
+type ContextsQuery struct {
+	StatementID        string
+	ContextType        ContextType
+	ContextID          string
+	IncludeDescendants bool
+}
+
+// Contexts lists the contexts (organizations/teams) the authenticated user can
+// access, with hierarchy and resolved root organizationId.
+func (s *permissionService) Contexts(ctx context.Context, q ContextsQuery) ([]AccessibleContext, error) {
+	v := url.Values{}
+	if q.StatementID != "" {
+		v.Set("statementId", q.StatementID)
+	}
+	if q.ContextType != "" {
+		v.Set("contextType", q.ContextType)
+	}
+	if q.ContextID != "" {
+		v.Set("contextId", q.ContextID)
+	}
+	if q.IncludeDescendants {
+		v.Set("includeDescendants", "true")
+	}
+	var out struct {
+		Contexts []AccessibleContext `json:"contexts"`
+	}
+	err := s.r.Do(ctx, "GET", withQuery(routePrefix+"/permission/contexts", v), nil, &out)
+	return out.Contexts, err
+}
+
 func (s *permissionService) GrantBatch(ctx context.Context, grants []GrantInput) ([]PermissionGrant, error) {
 	if len(grants) == 0 {
 		return nil, validationError("grants")

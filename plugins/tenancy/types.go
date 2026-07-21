@@ -112,6 +112,19 @@ type CheckInput struct {
 	ContextID   string      `json:"contextId"`
 }
 
+// AccessibleContext is one entry from permission/contexts: a context the
+// authenticated user can access, with its hierarchy and access source.
+type AccessibleContext struct {
+	ContextType    ContextType  `json:"contextType"`
+	ContextID      string       `json:"contextId"`
+	Name           string       `json:"name"`
+	ParentType     *ContextType `json:"parentType,omitempty"`
+	ParentID       *string      `json:"parentId,omitempty"`
+	OrganizationID string       `json:"organizationId"`
+	Source         string       `json:"source"` // "role" | "membership" | "grant" | "inherited"
+	RoleID         *string      `json:"roleId,omitempty"`
+}
+
 // Invitation is a context invitation (email/phone/code/QR agnostic).
 type Invitation struct {
 	ID             string                 `json:"id"`
