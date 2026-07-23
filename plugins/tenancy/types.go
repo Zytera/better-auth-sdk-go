@@ -1,6 +1,10 @@
 package tenancy
 
-import "time"
+import (
+	"time"
+
+	betterauth "github.com/Zytera/better-auth-sdk-go"
+)
 
 // ContextType is the hierarchy level a role/permission/member/invitation targets.
 type ContextType = string
@@ -64,14 +68,17 @@ type Role struct {
 
 // Member links a user to a context, optionally with a role.
 type Member struct {
-	ID          string                 `json:"id"`
-	ContextType ContextType            `json:"contextType"`
-	ContextID   string                 `json:"contextId"`
-	UserID      string                 `json:"userId"`
-	RoleID      *string                `json:"roleId,omitempty"`
-	Metadata    map[string]interface{} `json:"metadata,omitempty"`
-	CreatedAt   time.Time              `json:"createdAt"`
-	UpdatedAt   time.Time              `json:"updatedAt"`
+	ID          string      `json:"id"`
+	ContextType ContextType `json:"contextType"`
+	ContextID   string      `json:"contextId"`
+	UserID      string      `json:"userId"`
+	RoleID      *string     `json:"roleId,omitempty"`
+	// User is only populated by endpoints that return enriched members
+	// (they omit userId); nil elsewhere.
+	User      *betterauth.User       `json:"user,omitempty"`
+	Metadata  map[string]interface{} `json:"metadata,omitempty"`
+	CreatedAt time.Time              `json:"createdAt"`
+	UpdatedAt time.Time              `json:"updatedAt"`
 }
 
 // PermissionGrant is an explicit permission granted to a user.
