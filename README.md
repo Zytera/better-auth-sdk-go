@@ -36,6 +36,7 @@ _ = ten
 | session | `plugins/session` | Get / verify the current session |
 | admin | `plugins/admin` | User administration |
 | bearer | core (`client.SetBearerToken`) | Transport, not an endpoint |
+| apikey | `plugins/apikey` + core (`client.SetAPIKey`) | Manage API keys; authenticate calls with one |
 | tenancy | `plugins/tenancy` | Orgs/teams/roles/permissions (mirrors the plugin's TS client) |
 
 Writing your own plugin: see [DEVELOPMENT.md](DEVELOPMENT.md).
@@ -47,6 +48,18 @@ The bearer plugin is transport, not an endpoint, so it lives on the client:
 ```go
 client.SetBearerToken("your-jwt")   // adds "Authorization: Bearer ..." to every request
 client.SetBearerToken("")           // disable
+```
+
+### apikey
+
+Manage keys with `plugins/apikey` (`Create`, `Get`, `Update`, `Delete`, `List`,
+`Verify`, `DeleteAllExpired`). To authenticate requests *with* a key, set it on
+the client — it rides along as the `x-api-key` header, like bearer:
+
+```go
+key, _ := apikey.New(client).Create(ctx, apikey.CreateInput{Name: "ci"})
+client.SetAPIKey(key.Key)   // adds "x-api-key: ..." to every request
+client.SetAPIKey("")        // disable
 ```
 
 ### tenancy

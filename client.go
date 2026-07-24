@@ -28,17 +28,41 @@ type Client struct {
 	config       *Config
 	HTTPClient   *http.Client
 	SessionToken *SessionToken
-	bearerToken  string
+	headers      map[string]string
 	mu           sync.RWMutex
+}
+
+// SetHeader sets a header sent on every subsequent request; pass "" to remove
+// it. This is the single mechanism behind all auth transports (bearer, api-key,
+// or any custom scheme). Safe for concurrent use with Do.
+func (c *Client) SetHeader(name, value string) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	if value == "" {
+		delete(c.headers, name)
+		return
+	}
+	if c.headers == nil {
+		c.headers = map[string]string{}
+	}
+	c.headers[name] = value
 }
 
 // SetBearerToken enables the bearer plugin: subsequent requests carry an
 // "Authorization: Bearer <token>" header. Pass "" to disable.
-// Safe for concurrent use with Do.
 func (c *Client) SetBearerToken(token string) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	c.bearerToken = token
+	if token == "" {
+		c.SetHeader("Authorization", "")
+		return
+	}
+	c.SetHeader("Authorization", "Bearer "+token)
+}
+
+// SetAPIKey enables the api-key plugin: subsequent requests carry the key in
+// the configured api-key header (Config.APIKeyHeader, default "x-api-key"),
+// authenticating any endpoint as the key's owner. Pass "" to disable.
+func (c *Client) SetAPIKey(key string) {
+	c.SetHeader(c.config.APIKeyHeader, key)
 }
 
 // SessionToken carries the session cookie from the server.
@@ -101,13 +125,12 @@ func (c *Client) Do(ctx context.Context, method, path string, body, result inter
 		req.AddCookie(&http.Cookie{Name: cookie.Name, Value: cookie.Value})
 	}
 
-	// bearer plugin: send the token as an Authorization header when set.
+	// Auth transports (bearer, api-key, custom) all ride on the headers map.
 	c.mu.RLock()
-	bearer := c.bearerToken
-	c.mu.RUnlock()
-	if bearer != "" {
-		req.Header.Set("Authorization", "Bearer "+bearer)
+	for name, value := range c.headers {
+		req.Header.Set(name, value)
 	}
+	c.mu.RUnlock()
 
 	if c.config.Debug {
 		log.Printf("[betterauth] %s %s", method, fullURL)

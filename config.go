@@ -20,6 +20,11 @@ type Config struct {
 	// HTTPClient is a custom HTTP client (optional)
 	HTTPClient *http.Client
 
+	// APIKeyHeader is the header name SetAPIKey uses (default: "x-api-key").
+	// Override to match a server that customizes the api-key plugin's
+	// apiKeyHeaders.
+	APIKeyHeader string
+
 	// Debug enables debug logging
 	Debug bool
 }
@@ -44,6 +49,10 @@ func (c *Config) setDefaults() {
 
 	if c.BasePath == "" {
 		c.BasePath = "/api/auth"
+	}
+
+	if c.APIKeyHeader == "" {
+		c.APIKeyHeader = "x-api-key"
 	}
 
 	if c.HTTPClient == nil {
