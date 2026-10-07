@@ -45,12 +45,27 @@ type Team struct {
 	UpdatedAt  time.Time              `json:"updatedAt"`
 }
 
+// StatementTranslation is a localized name/description for a statement.
+type StatementTranslation struct {
+	Locale      string  `json:"locale"`
+	Name        string  `json:"name"`
+	Description *string `json:"description,omitempty"`
+}
+
 // Statement is a single permission, formatted as "category:operation".
 type Statement struct {
-	ID        string    `json:"id"`
-	Category  string    `json:"category"`
-	Operation string    `json:"operation"`
-	CreatedAt time.Time `json:"createdAt"`
+	ID          string                `json:"id"`
+	Category    string                `json:"category"`
+	Operation   string                `json:"operation"`
+	CreatedAt   time.Time             `json:"createdAt"`
+	Translation *StatementTranslation `json:"translation,omitempty"`
+}
+
+// RoleTranslation is a localized name/description for a role.
+type RoleTranslation struct {
+	Locale      string  `json:"locale"`
+	Name        string  `json:"name"`
+	Description *string `json:"description,omitempty"`
 }
 
 // Role is a custom role scoped to an organization or team context.
@@ -62,8 +77,9 @@ type Role struct {
 	Description *string     `json:"description,omitempty"`
 	CreatedAt   time.Time   `json:"createdAt"`
 	UpdatedAt   time.Time   `json:"updatedAt"`
-	// Statements is populated by list when includeStatements=true.
-	Statements []string `json:"statements,omitempty"`
+	// Statements is populated by Get and by List when includeStatements=true.
+	Statements     []Statement `json:"statements,omitempty"`
+	StatementCount int         `json:"statementCount,omitempty"`
 }
 
 // Member links a user to a context, optionally with a role.
