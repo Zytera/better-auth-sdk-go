@@ -298,11 +298,18 @@ type roleService struct{ r betterauth.Requester }
 
 // CreateRoleInput is the payload for Role.Create.
 type CreateRoleInput struct {
-	Name        string      `json:"name"`
-	ContextType ContextType `json:"contextType"`
-	ContextID   string      `json:"contextId"`
-	Statements  []string    `json:"statements,omitempty"`
-	Description string      `json:"description,omitempty"`
+	Name         string            `json:"name"`
+	ContextType  ContextType       `json:"contextType"`
+	ContextID    string            `json:"contextId"`
+	Statements   []string          `json:"statements,omitempty"`
+	Description  string            `json:"description,omitempty"`
+	Translations []RoleTranslation `json:"translations,omitempty"`
+}
+
+// SetRoleTranslationsInput is the payload for Role.SetTranslations.
+type SetRoleTranslationsInput struct {
+	ID           string            `json:"id"`
+	Translations []RoleTranslation `json:"translations"`
 }
 
 func (s *roleService) Create(ctx context.Context, in CreateRoleInput) (*Role, error) {
@@ -362,28 +369,36 @@ func (s *roleService) List(ctx context.Context, contextType ContextType, context
 	return do[List[Role]](s.r, ctx, "GET", withQuery(routePrefix+"/role/list", v), nil)
 }
 
-func (s *roleService) AddStatement(ctx context.Context, roleID, statementID string) (*Role, error) {
+func (s *roleService) AddStatement(ctx context.Context, roleID, statementID string) error {
 	if err := requireString("roleID", roleID); err != nil {
-		return nil, err
+		return err
 	}
 	if err := requireString("statementID", statementID); err != nil {
-		return nil, err
+		return err
 	}
-	return do[Role](s.r, ctx, "POST", routePrefix+"/role/statement/add", map[string]string{
+	return s.r.Do(ctx, "POST", routePrefix+"/role/statement/add", map[string]string{
 		"id": roleID, "statementId": statementID,
-	})
+	}, nil)
 }
 
-func (s *roleService) RemoveStatement(ctx context.Context, roleID, statementID string) (*Role, error) {
+func (s *roleService) RemoveStatement(ctx context.Context, roleID, statementID string) error {
 	if err := requireString("roleID", roleID); err != nil {
-		return nil, err
+		return err
 	}
 	if err := requireString("statementID", statementID); err != nil {
-		return nil, err
+		return err
 	}
-	return do[Role](s.r, ctx, "POST", routePrefix+"/role/statement/remove", map[string]string{
+	return s.r.Do(ctx, "POST", routePrefix+"/role/statement/remove", map[string]string{
 		"id": roleID, "statementId": statementID,
-	})
+	}, nil)
+}
+
+// SetTranslations replaces all translations for a role.
+func (s *roleService) SetTranslations(ctx context.Context, in SetRoleTranslationsInput) error {
+	if err := requireString("id", in.ID); err != nil {
+		return err
+	}
+	return s.r.Do(ctx, "POST", routePrefix+"/role/translations/set", in, nil)
 }
 
 // --- member ------------------------------------------------------------------
